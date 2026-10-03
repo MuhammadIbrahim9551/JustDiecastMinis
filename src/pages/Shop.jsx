@@ -622,21 +622,24 @@ function Shop({
       });
 
     // SORTING
-    if (sort === "price-low") {
-      return [...filtered].sort(
-        (a, b) =>
-          a.price - b.price
-      );
-    }
+if (sort === "price-low") {
+  return [...filtered].sort(
+    (a, b) => a.price - b.price
+  );
+}
 
-    if (sort === "price-high") {
-      return [...filtered].sort(
-        (a, b) =>
-          b.price - a.price
-      );
-    }
+if (sort === "price-high") {
+  return [...filtered].sort(
+    (a, b) => b.price - a.price
+  );
+}
 
-    return filtered;
+// Default: newest products first
+return [...filtered].sort(
+  (a, b) =>
+    new Date(b.createdAt || 0) -
+    new Date(a.createdAt || 0)
+);
   }, [
     products,
     search,
