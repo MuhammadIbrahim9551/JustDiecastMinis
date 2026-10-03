@@ -445,3 +445,9 @@ Computer Science Engineering student and full-stack developer interested in soft
 ## 📄 License
 
 This project is currently intended primarily as a personal portfolio and demonstration project.
+
+© 2026 Muhammad Ibrahim. All rights reserved.
+
+This repository is published for portfolio and educational viewing purposes.
+Unauthorized reproduction, redistribution, or commercial use of the source code
+is not permitted without prior written permission.
