@@ -544,7 +544,7 @@ function FooterLayout() {
 </a>
 
 <a
-  href="https://chat.whatsapp.com/LnIyml6TqJfI0N7KEdyNpM"
+  href="https://chat.whatsapp.com/JmTeqRuFWoO2A2UApUcU68"
   target="_blank"
   rel="noopener noreferrer"
   aria-label="WhatsApp"
