@@ -442,28 +442,40 @@ function Home({ cart, setCart }) {
   };
 
   const featuredProducts = products
-    .filter(
-      (product) => product.category === "featured"
-    )
-    .slice(0, 4);
+  .filter(
+    (product) => product.category === "featured"
+  )
+  .sort(
+    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+  )
+  .slice(0, 4);
 
   const jdmProducts = products
-    .filter((product) =>
-      getProductTypes(product).includes("jdm")
-    )
-    .slice(0, 4);
+  .filter((product) =>
+    getProductTypes(product).includes("jdm")
+  )
+  .sort(
+    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+  )
+  .slice(0, 4);
 
   const euroProducts = products
-    .filter((product) =>
-      getProductTypes(product).includes("euro")
-    )
-    .slice(0, 4);
+  .filter((product) =>
+    getProductTypes(product).includes("euro")
+  )
+  .sort(
+    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+  )
+  .slice(0, 4);
 
   const muscleProducts = products
-    .filter((product) =>
-      getProductTypes(product).includes("race cars")
-    )
-    .slice(0, 4);
+  .filter((product) =>
+    getProductTypes(product).includes("race cars")
+  )
+  .sort(
+    (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+  )
+  .slice(0, 4);
 
   console.log("HOME SECTION COUNTS:", {
     total: products.length,

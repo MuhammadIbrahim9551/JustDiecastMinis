@@ -343,9 +343,9 @@ const validateProductFields = ({
 router.get("/", async (req, res) => {
   try {
     const products =
-      await Product.find().sort({
-        id: 1
-      });
+  await Product.find().sort({
+    createdAt: -1
+  });
 
     res.json(products);
   } catch (error) {
