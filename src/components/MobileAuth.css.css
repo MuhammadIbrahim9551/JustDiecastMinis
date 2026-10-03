@@ -1,0 +1,86 @@
+.mobile-auth-section {
+  width: 100%;
+  padding: 14px 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.mobile-auth-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 16px;
+}
+
+.mobile-auth-user .nav-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mobile-auth-user strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #000;
+}
+
+.mobile-auth-user span {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #777;
+}
+
+.mobile-auth-link,
+.mobile-auth-section > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 0;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #000;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.mobile-auth-link .nav-icon,
+.mobile-auth-section > button .nav-icon {
+  display: block;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mobile-auth-link span,
+.mobile-auth-section > button span {
+  display: block;
+}
+
+.mobile-auth-link:hover,
+.mobile-auth-section > button:hover {
+  color: #df1532;
+}
+
+.mobile-auth-link:hover .nav-icon,
+.mobile-auth-section > button:hover .nav-icon {
+  stroke: #df1532;
+}

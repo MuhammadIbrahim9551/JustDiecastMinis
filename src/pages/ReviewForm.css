@@ -1,0 +1,154 @@
+
+.review-page {
+  min-height: 100vh;
+  background: #111111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 20px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.review-card {
+  width: 100%;
+  max-width: 650px;
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 42px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+}
+
+.review-title {
+  color: #151515;
+  font-size: 30px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.review-subtitle {
+  color: #777777;
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.review-product-box {
+  background: #f5f5f5;
+  border-left: 4px solid #df1532;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.review-product-name {
+  color: #171717;
+  font-size: 21px;
+  font-weight: 700;
+  margin: 5px 0 15px;
+}
+
+.review-label {
+  display: block;
+  color: #222222;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.review-stars {
+  display: flex;
+  gap: 8px;
+}
+
+.review-star {
+  border: none;
+  background: transparent;
+  font-size: 38px;
+  color: #d1d1d1;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.review-star.selected {
+  color: #df1532;
+}
+
+.review-star:hover {
+  color: #df1532;
+  transform: scale(1.12);
+}
+
+.review-textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 14px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.review-textarea:focus {
+  border-color: #df1532;
+  box-shadow: 0 0 0 2px rgba(223, 21, 50, 0.1);
+}
+
+.review-submit-button {
+  width: 100%;
+  padding: 15px;
+  background: #df1532;
+  color: #ffffff;
+  border: none;
+  border-radius: 3px;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.review-submit-button:hover {
+  background: #b91029;
+}
+
+.review-submit-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.review-error {
+  background: #fff0f2;
+  color: #c41230;
+  padding: 12px;
+  border-left: 4px solid #df1532;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.review-success {
+  background: #edf9f0;
+  color: #237a3b;
+  padding: 15px;
+  border-left: 4px solid #237a3b;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .review-page {
+    padding: 25px 15px;
+  }
+
+  .review-card {
+    padding: 25px 20px;
+  }
+
+  .review-title {
+    font-size: 24px;
+  }
+}
