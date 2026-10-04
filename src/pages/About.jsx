@@ -38,7 +38,7 @@ function About() {
       <section className="about-story">
         <Reveal>
           <div className="about-story-image">
-            <img src="public/images/supra_skyline.jpg" alt="Diecast model" />
+            <img src="/images/supra_skyline.jpg" alt="Diecast model" />
           </div>
         </Reveal>
 
