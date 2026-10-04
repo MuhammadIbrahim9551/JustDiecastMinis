@@ -1,7 +1,6 @@
 const express = require("express");
 const crypto = require("crypto");
 const Razorpay = require("razorpay");
-const nodemailer = require("nodemailer");
 
 const Order = require("../models/Order");
 const Product = require("../models/Product");
@@ -22,15 +21,7 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-const mailTransporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: Number(process.env.BREVO_SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS
-  }
-});
+const mailTransporter = require("../services/mailService");
 
 /*
  * Escape HTML characters before inserting

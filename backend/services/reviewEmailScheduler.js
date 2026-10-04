@@ -1,6 +1,5 @@
 
 const cron = require("node-cron");
-const nodemailer = require("nodemailer");
 
 const Order = require("../models/Order");
 const ReviewRequest = require("../models/ReviewRequest");
@@ -10,15 +9,7 @@ const {
   hashReviewToken
 } = require("../utils/reviewToken");
 
-const mailTransporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: Number(process.env.BREVO_SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS
-  }
-});
+const mailTransporter = require("./mailService");
 
 async function createReviewRequests(order) {
   const reviewLinks = [];

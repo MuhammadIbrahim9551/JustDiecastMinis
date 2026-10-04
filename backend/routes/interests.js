@@ -1,21 +1,11 @@
 const express = require("express");
-const nodemailer = require("nodemailer");
 
 const Product = require("../models/Product");
 const Interest = require("../models/Interest");
 
 const router = express.Router();
 
-const mailTransporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: Number(process.env.BREVO_SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS
-  }
-});
-
+const mailTransporter = require("../services/mailService");
 router.post("/", async (req, res) => {
   try {
     const {

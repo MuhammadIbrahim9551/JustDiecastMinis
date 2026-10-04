@@ -1,11 +1,11 @@
 const express = require("express");
-const nodemailer = require("nodemailer");
 
 const Order = require("../models/Order");
 const Announcement = require("../models/Announcement");
 const Review = require("../models/Review");
 const StoreSettings = require("../models/StoreSettings");
 const MAX_EMAIL_ATTEMPTS = 5;
+const mailTransporter = require("../services/mailService");
 
 const RETRY_DELAYS = [
   5 * 60 * 1000,        // 5 minutes
@@ -52,15 +52,6 @@ const {
 
 const router = express.Router();
 
-const mailTransporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: Number(process.env.BREVO_SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS
-  }
-});
 
 /*
  * Send dispatch / shipping confirmation email.

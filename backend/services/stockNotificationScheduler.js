@@ -1,18 +1,9 @@
 const cron = require("node-cron");
-const nodemailer = require("nodemailer");
 const User = require("../models/User");
 const Product = require("../models/Product");
 const Interest = require("../models/Interest");
 
-const mailTransporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: Number(process.env.BREVO_SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS
-  }
-});
+const mailTransporter = require("./mailService");
 
 const FRONTEND_URL = (
   process.env.FRONTEND_URL || "http://localhost:5173"

@@ -2,9 +2,9 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 const User = require("../models/User");
 const { authenticate } = require("../middleware/auth");
+const mailTransporter = require("../services/mailService");
 
 const router = express.Router();
 
@@ -20,24 +20,6 @@ const createToken = (user) => {
     }
   );
 };
-
-const mailTransporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: Number(process.env.BREVO_SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS
-  }
-});
-
-mailTransporter.verify((error, success) => {
-  if (error) {
-    console.error("BREVO SMTP ERROR:", error);
-  } else {
-    console.log("BREVO SMTP CONNECTION SUCCESSFUL.");
-  }
-});
 
 router.post("/signup", async (req, res) => {
   try {
