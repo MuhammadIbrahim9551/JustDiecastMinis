@@ -2,12 +2,6 @@ const express = require("express");
 
 const net = require("net");
 
-const socket = net.createConnection({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  timeout: 10000
-});
-
 socket.on("connect", () => {
   console.log("SMTP PORT 587 CONNECTION: SUCCESS");
   socket.destroy();
