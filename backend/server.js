@@ -1,5 +1,27 @@
 const express = require("express");
 
+const net = require("net");
+
+const socket = net.createConnection({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  timeout: 10000
+});
+
+socket.on("connect", () => {
+  console.log("SMTP PORT 587 CONNECTION: SUCCESS");
+  socket.destroy();
+});
+
+socket.on("timeout", () => {
+  console.log("SMTP PORT 587 CONNECTION: TIMEOUT");
+  socket.destroy();
+});
+
+socket.on("error", (err) => {
+  console.log("SMTP PORT 587 CONNECTION ERROR:", err.message);
+});
+
 const cors = require("cors");
 
 const mongoose = require("mongoose");
