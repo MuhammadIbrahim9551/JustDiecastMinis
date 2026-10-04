@@ -986,7 +986,7 @@ button {
 .shop-header {
   position: relative;
   padding: 80px 7% 60px;
-  background-image: url("public/images/fdnr34.jpg");
+  background-image: url("/images/fdnr34.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
