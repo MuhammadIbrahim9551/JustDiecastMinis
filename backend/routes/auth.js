@@ -138,11 +138,13 @@ router.post("/login", async (req, res) => {
       );
 
     if (!passwordMatches) {
-      return res.status(401).json({
-        message:
-          "Invalid email or password."
-      });
-    }
+  console.log("LOGIN DEBUG: PASSWORD DOES NOT MATCH:", normalizedEmail);
+
+  return res.status(401).json({
+    message:
+      "Invalid email or password."
+  });
+}
 
     const token = createToken(user);
 
