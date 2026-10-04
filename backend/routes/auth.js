@@ -123,11 +123,13 @@ router.post("/login", async (req, res) => {
     }).select("+passwordHash");
 
     if (!user) {
-      return res.status(401).json({
-        message:
-          "Invalid email or password."
-      });
-    }
+  console.log("LOGIN DEBUG: USER NOT FOUND:", normalizedEmail);
+
+  return res.status(401).json({
+    message:
+      "Invalid email or password."
+  });
+}
 
     const passwordMatches =
       await bcrypt.compare(
