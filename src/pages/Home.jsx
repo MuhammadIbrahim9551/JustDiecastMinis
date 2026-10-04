@@ -600,7 +600,7 @@ console.log("YouTube Showcase:", {
                     SMALL SCALE.
                     <br />
                     <span>
-                      SERIOUS OBSESSION.
+                      ENDLESS DETAIL.
                     </span>
                   </h1>
                 </Reveal>
