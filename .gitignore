@@ -22,3 +22,6 @@ pnpm-debug.log*
 Thumbs.db
 
 backend/mongodb-backup/
+
+# Uploaded product images
+backend/uploads/
