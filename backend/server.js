@@ -2,19 +2,6 @@ const express = require("express");
 
 const net = require("net");
 
-socket.on("connect", () => {
-  console.log("SMTP PORT 587 CONNECTION: SUCCESS");
-  socket.destroy();
-});
-
-socket.on("timeout", () => {
-  console.log("SMTP PORT 587 CONNECTION: TIMEOUT");
-  socket.destroy();
-});
-
-socket.on("error", (err) => {
-  console.log("SMTP PORT 587 CONNECTION ERROR:", err.message);
-});
 
 const cors = require("cors");
 
