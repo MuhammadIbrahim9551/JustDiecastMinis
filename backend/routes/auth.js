@@ -104,6 +104,7 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+  console.log("LOGIN ROUTE HIT");
   try {
     const { email, password } =
       req.body;
