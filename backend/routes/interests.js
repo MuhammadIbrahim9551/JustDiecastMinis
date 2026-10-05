@@ -5,9 +5,14 @@ const Interest = require("../models/Interest");
 
 const router = express.Router();
 
-const mailTransporter = require("../services/mailService");
+const mailTransporter =
+  require("../services/mailService");
+
+
 router.post("/", async (req, res) => {
+
   try {
+
     const {
       productId,
       productName,
@@ -15,48 +20,91 @@ router.post("/", async (req, res) => {
       customerEmail
     } = req.body;
 
-    const parsedProductId = Number(productId);
 
-    const trimmedName = String(customerName || "")
-      .trim();
+    /*
+    ==================================================
+    PRODUCT ID
+    ==================================================
 
-    const normalizedEmail = String(customerEmail || "")
-      .trim()
-      .toLowerCase();
+    Product IDs are strings.
 
-    if (
-      !Number.isInteger(parsedProductId) ||
-      parsedProductId <= 0
-    ) {
+    Example:
+    tmp-wrx-24
+    jdm-001
+    1
+    2
+    */
+
+    const normalizedProductId =
+      String(productId || "").trim();
+
+
+    const trimmedName =
+      String(customerName || "").trim();
+
+
+    const normalizedEmail =
+      String(customerEmail || "")
+        .trim()
+        .toLowerCase();
+
+
+    if (!normalizedProductId) {
+
       return res.status(400).json({
-        message: "Invalid product ID."
+        message:
+          "Invalid product ID."
       });
+
     }
+
 
     if (!trimmedName) {
+
       return res.status(400).json({
-        message: "Name is required."
+        message:
+          "Name is required."
       });
+
     }
+
 
     if (
       !normalizedEmail ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        normalizedEmail
+      )
     ) {
+
       return res.status(400).json({
-        message: "Please provide a valid email address."
+        message:
+          "Please provide a valid email address."
       });
+
     }
 
-    const product = await Product.findOne({
-      id: parsedProductId
-    });
+
+    /*
+    ==================================================
+    FIND PRODUCT
+    ==================================================
+    */
+
+    const product =
+      await Product.findOne({
+        id: normalizedProductId
+      });
+
 
     if (!product) {
+
       return res.status(404).json({
-        message: "Product not found."
+        message:
+          "Product not found."
       });
+
     }
+
 
     /*
     ==================================================
@@ -69,39 +117,87 @@ router.post("/", async (req, res) => {
         ? "pre-order"
         : "notify";
 
-    const existingInterest = await Interest.findOne({
-      productId: parsedProductId,
-      customerEmail: normalizedEmail,
-      type: interestType
-    });
+
+    /*
+    ==================================================
+    CHECK FOR EXISTING INTEREST
+    ==================================================
+    */
+
+    const existingInterest =
+      await Interest.findOne({
+
+        productId:
+          normalizedProductId,
+
+        customerEmail:
+          normalizedEmail,
+
+        type:
+          interestType
+
+      });
+
 
     if (existingInterest) {
+
       return res.status(409).json({
         message:
           "You have already registered interest in this model."
       });
+
     }
 
-    const interest = await Interest.create({
-      productId: parsedProductId,
-      productName: product.name,
-      customerName: trimmedName,
-      customerEmail: normalizedEmail,
-      type: interestType
-    });
+
+    /*
+    ==================================================
+    CREATE INTEREST
+    ==================================================
+    */
+
+    const interest =
+      await Interest.create({
+
+        productId:
+          normalizedProductId,
+
+        productName:
+          product.name,
+
+        customerName:
+          trimmedName,
+
+        customerEmail:
+          normalizedEmail,
+
+        type:
+          interestType
+
+      });
+
+
+    /*
+    ==================================================
+    EMAIL CONFIGURATION
+    ==================================================
+    */
 
     const senderEmail =
       process.env.MAIL_FROM ||
       process.env.BREVO_SMTP_USER;
 
+
     const senderName =
       process.env.MAIL_FROM_NAME ||
       "Just Diecast Minis";
 
+
     const ownerEmail =
       process.env.ADMIN_EMAIL;
 
+
     if (!ownerEmail) {
+
       console.error(
         "ADMIN_EMAIL is not configured."
       );
@@ -110,7 +206,9 @@ router.post("/", async (req, res) => {
         message:
           "Email configuration is incomplete."
       });
+
     }
+
 
     /*
     ==================================================
@@ -144,6 +242,7 @@ Just Diecast Minis
 Great cars. Just smaller.
     `.trim();
 
+
     const ownerMailHtml = `
       <div
         style="
@@ -155,6 +254,7 @@ Great cars. Just smaller.
           color: #222222;
         "
       >
+
         <div
           style="
             max-width: 600px;
@@ -163,6 +263,7 @@ Great cars. Just smaller.
             border: 1px solid #dddddd;
           "
         >
+
           <div
             style="
               padding: 25px 30px;
@@ -171,6 +272,7 @@ Great cars. Just smaller.
               border-bottom: 5px solid #df1532;
             "
           >
+
             <h2
               style="
                 margin: 0;
@@ -190,13 +292,16 @@ Great cars. Just smaller.
             >
               GREAT CARS. JUST SMALLER.
             </p>
+
           </div>
+
 
           <div
             style="
               padding: 30px;
             "
           >
+
             <p
               style="
                 margin: 0 0 8px;
@@ -209,6 +314,7 @@ Great cars. Just smaller.
               STORE NOTIFICATION
             </p>
 
+
             <h1
               style="
                 margin: 0 0 20px;
@@ -219,10 +325,12 @@ Great cars. Just smaller.
               NEW INTEREST REGISTRATION
             </h1>
 
+
             <p>
               A customer has registered interest in a model
               from Just Diecast Minis.
             </p>
+
 
             <div
               style="
@@ -232,6 +340,7 @@ Great cars. Just smaller.
                 border-left: 4px solid #df1532;
               "
             >
+
               <h3
                 style="
                   margin: 0 0 15px;
@@ -242,21 +351,26 @@ Great cars. Just smaller.
                 MODEL DETAILS
               </h3>
 
+
               <p style="margin: 6px 0;">
                 <strong>Model:</strong>
                 ${product.name}
               </p>
+
 
               <p style="margin: 6px 0;">
                 <strong>Product ID:</strong>
                 ${product.id}
               </p>
 
+
               <p style="margin: 6px 0;">
                 <strong>Interest Type:</strong>
                 ${interestType}
               </p>
+
             </div>
+
 
             <div
               style="
@@ -266,6 +380,7 @@ Great cars. Just smaller.
                 border-left: 4px solid #df1532;
               "
             >
+
               <h3
                 style="
                   margin: 0 0 15px;
@@ -276,16 +391,20 @@ Great cars. Just smaller.
                 CUSTOMER DETAILS
               </h3>
 
+
               <p style="margin: 6px 0;">
                 <strong>Name:</strong>
                 ${trimmedName}
               </p>
 
+
               <p style="margin: 6px 0;">
                 <strong>Email:</strong>
                 ${normalizedEmail}
               </p>
+
             </div>
+
 
             <p
               style="
@@ -298,6 +417,7 @@ Great cars. Just smaller.
               ${interest._id}
             </p>
 
+
             <p
               style="
                 margin-top: 30px;
@@ -307,7 +427,9 @@ Great cars. Just smaller.
               Please follow up with the customer when the
               model becomes available.
             </p>
+
           </div>
+
 
           <div
             style="
@@ -318,38 +440,57 @@ Great cars. Just smaller.
               font-size: 13px;
             "
           >
+
             <strong>Just Diecast Minis</strong>
             <br />
             Great cars. Just smaller.
+
           </div>
+
         </div>
+
       </div>
     `;
 
+
     const ownerMailResult =
       await mailTransporter.sendMail({
+
         from:
           `"${senderName}" <${senderEmail}>`,
-        to: ownerEmail,
+
+        to:
+          ownerEmail,
+
         subject:
           `New Register Interest: ${product.name}`,
-        text: ownerMailText,
-        html: ownerMailHtml
+
+        text:
+          ownerMailText,
+
+        html:
+          ownerMailHtml
+
       });
+
 
     console.log(
       "Owner interest email delivery details:",
       {
         messageId:
           ownerMailResult.messageId,
+
         accepted:
           ownerMailResult.accepted,
+
         rejected:
           ownerMailResult.rejected,
+
         response:
           ownerMailResult.response
       }
     );
+
 
     /*
     ==================================================
@@ -376,6 +517,7 @@ Others on Your Shelf.
 Great cars. Just smaller.
     `.trim();
 
+
     const customerMailHtml = `
       <div
         style="
@@ -387,6 +529,7 @@ Great cars. Just smaller.
           color: #222222;
         "
       >
+
         <div
           style="
             max-width: 600px;
@@ -395,6 +538,7 @@ Great cars. Just smaller.
             border: 1px solid #dddddd;
           "
         >
+
           <div
             style="
               padding: 25px 30px;
@@ -403,6 +547,7 @@ Great cars. Just smaller.
               border-bottom: 5px solid #df1532;
             "
           >
+
             <h2
               style="
                 margin: 0;
@@ -422,13 +567,16 @@ Great cars. Just smaller.
             >
               GREAT CARS. JUST SMALLER.
             </p>
+
           </div>
+
 
           <div
             style="
               padding: 30px;
             "
           >
+
             <p
               style="
                 margin: 0 0 8px;
@@ -441,6 +589,7 @@ Great cars. Just smaller.
               REGISTER INTEREST
             </p>
 
+
             <h1
               style="
                 margin: 0 0 20px;
@@ -451,13 +600,16 @@ Great cars. Just smaller.
               YOU'RE ON THE LIST!
             </h1>
 
+
             <p>
               Hi ${trimmedName},
             </p>
 
+
             <p>
               Thank you for registering your interest in:
             </p>
+
 
             <div
               style="
@@ -467,6 +619,7 @@ Great cars. Just smaller.
                 border-left: 4px solid #df1532;
               "
             >
+
               <h2
                 style="
                   margin: 0;
@@ -477,6 +630,7 @@ Great cars. Just smaller.
                 ${product.name}
               </h2>
 
+
               <p
                 style="
                   margin: 8px 0 0;
@@ -486,7 +640,9 @@ Great cars. Just smaller.
               >
                 Product ID: ${product.id}
               </p>
+
             </div>
+
 
             <p>
               Your interest has been registered successfully.
@@ -494,11 +650,13 @@ Great cars. Just smaller.
               available.
             </p>
 
+
             <p>
               We appreciate your interest in Just Diecast Minis
               and hope to help you add another dream car to
               your collection.
             </p>
+
 
             <div
               style="
@@ -509,6 +667,7 @@ Great cars. Just smaller.
                 text-align: center;
               "
             >
+
               <p
                 style="
                   margin: 0;
@@ -518,6 +677,7 @@ Great cars. Just smaller.
               >
                 Some Dreams Belong on the Road.
               </p>
+
 
               <p
                 style="
@@ -529,11 +689,14 @@ Great cars. Just smaller.
               >
                 Others on Your Shelf.
               </p>
+
             </div>
+
 
             <p>
               Thank you for supporting Just Diecast Minis!
             </p>
+
 
             <p
               style="
@@ -544,7 +707,9 @@ Great cars. Just smaller.
             >
               Great cars. Just smaller.
             </p>
+
           </div>
+
 
           <div
             style="
@@ -555,65 +720,97 @@ Great cars. Just smaller.
               font-size: 13px;
             "
           >
+
             <strong>Just Diecast Minis</strong>
             <br />
             Thank you for being part of our collection.
+
           </div>
+
         </div>
+
       </div>
     `;
 
+
     const customerMailResult =
       await mailTransporter.sendMail({
+
         from:
           `"${senderName}" <${senderEmail}>`,
-        to: normalizedEmail,
+
+        to:
+          normalizedEmail,
+
         subject:
           `You're on the list! — ${product.name}`,
-        text: customerMailText,
-        html: customerMailHtml
+
+        text:
+          customerMailText,
+
+        html:
+          customerMailHtml
+
       });
+
 
     console.log(
       "Customer interest email delivery details:",
       {
         messageId:
           customerMailResult.messageId,
+
         accepted:
           customerMailResult.accepted,
+
         rejected:
           customerMailResult.rejected,
+
         response:
           customerMailResult.response
       }
     );
 
+
     return res.status(201).json({
+
       message:
         "Interest registered successfully.",
+
       interestId:
         interest._id
+
     });
+
 
   } catch (error) {
 
-    if (error.code === 11000) {
+    if (
+      error.code === 11000
+    ) {
+
       return res.status(409).json({
         message:
           "You have already registered interest in this model."
       });
+
     }
+
 
     console.error(
       "Register interest error:",
       error
     );
 
+
     return res.status(500).json({
       message:
         "Unable to register interest right now."
     });
+
   }
+
 });
+
 
 module.exports = router;
