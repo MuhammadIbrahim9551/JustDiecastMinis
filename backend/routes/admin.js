@@ -6,6 +6,9 @@ const Review = require("../models/Review");
 const StoreSettings = require("../models/StoreSettings");
 const MAX_EMAIL_ATTEMPTS = 5;
 const mailTransporter = require("../services/mailService");
+const {
+  processReviewEmails
+} = require("../services/reviewEmailScheduler");
 
 const RETRY_DELAYS = [
   5 * 60 * 1000,        // 5 minutes
@@ -1437,5 +1440,30 @@ router.delete(
 );
 router.sendDispatchEmail = sendDispatchEmail;
 router.sendDeliveryEmail = sendDeliveryEmail;
+router.post(
+  "/test-review-emails",
+  authenticate,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      await processReviewEmails();
+
+      return res.json({
+        message:
+          "Review email processing triggered successfully."
+      });
+    } catch (error) {
+      console.error(
+        "Test review email processing failed:",
+        error.message
+      );
+
+      return res.status(500).json({
+        message:
+          "Failed to trigger review email processing."
+      });
+    }
+  }
+);
 
 module.exports = router;

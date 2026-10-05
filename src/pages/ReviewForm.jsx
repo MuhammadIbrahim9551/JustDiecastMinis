@@ -140,7 +140,7 @@ function ReviewForm() {
       const formData = new FormData();
 
       formData.append("orderId", orderId);
-      formData.append("productId", Number(productId));
+      formData.append("productId", productId);
       formData.append("token", token);
       formData.append("rating", rating);
       formData.append("comment", comment.trim());

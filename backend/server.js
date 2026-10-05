@@ -166,6 +166,11 @@ mongoose
       "MongoDB connected successfully."
     );
 
+    console.log(
+  "MongoDB database:",
+  mongoose.connection.name
+);
+
     startStockNotificationScheduler();
 
     app.listen(

@@ -9,10 +9,11 @@ const reviewRequestSchema = new mongoose.Schema(
     },
 
     productId: {
-      type: Number,
-      required: true,
-      index: true
-    },
+  type: String,
+  required: true,
+  index: true,
+  trim: true
+},
 
     productName: {
       type: String,

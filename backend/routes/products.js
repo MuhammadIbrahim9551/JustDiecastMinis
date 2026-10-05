@@ -1,7 +1,6 @@
 const express = require("express");
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const cloudinary = require("../cloudinary");
 
 const Product = require("../models/Product");
 
@@ -26,38 +25,8 @@ const allowedStatuses = [
   "out-of-stock"
 ];
 
-const uploadDirectory = path.join(
-  __dirname,
-  "../uploads/products"
-);
-
-if (!fs.existsSync(uploadDirectory)) {
-  fs.mkdirSync(uploadDirectory, {
-    recursive: true
-  });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDirectory);
-  },
-
-  filename: (req, file, cb) => {
-    const extension = path.extname(
-      file.originalname
-    );
-
-    const filename =
-      `${Date.now()}-${Math.round(
-        Math.random() * 1e9
-      )}${extension}`;
-
-    cb(null, filename);
-  }
-});
-
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
 
   limits: {
     fileSize: 10 * 1024 * 1024
@@ -87,15 +56,6 @@ const upload = multer({
   }
 });
 
-const deleteUploadedFiles = (files) => {
-  if (!files) {
-    return;
-  }
-
-  files.forEach((file) => {
-    fs.unlink(file.path, () => {});
-  });
-};
 
 const parseType = (value) => {
   try {
@@ -510,11 +470,30 @@ router.post(
           "out-of-stock";
       }
 
-      const uploadedImages =
-        req.files.map(
-          (file) =>
-            `${process.env.BACKEND_URL}/uploads/products/${file.filename}`
+      const uploadedImages = [];
+
+for (const file of req.files) {
+  const result =
+    await new Promise((resolve, reject) => {
+      const stream =
+        cloudinary.uploader.upload_stream(
+          {
+            folder: "just-diecast-minis/products"
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
         );
+
+      stream.end(file.buffer);
+    });
+
+  uploadedImages.push(result.secure_url);
+}
 
       const product =
         await Product.create({
@@ -753,16 +732,81 @@ if (!productId) {
             image.trim().length > 0
         );
 
-      const uploadedImages =
-        (req.files || []).map(
-          (file) =>
-            `${process.env.BACKEND_URL}/uploads/products/${file.filename}`
+      const uploadedImages = [];
+
+for (const file of req.files || []) {
+  const result =
+    await new Promise((resolve, reject) => {
+      const stream =
+        cloudinary.uploader.upload_stream(
+          {
+            folder: "just-diecast-minis/products"
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
         );
+
+      stream.end(file.buffer);
+    });
+
+  uploadedImages.push(result.secure_url);
+}
 
       const finalImages = [
         ...existingImages,
         ...uploadedImages
       ];
+
+      const removedImages =
+  (Array.isArray(existingProduct.images)
+    ? existingProduct.images
+    : []
+  ).filter(
+    (image) =>
+      !finalImages.includes(image)
+  );
+
+  for (const image of removedImages) {
+  if (
+    typeof image !== "string" ||
+    !image.includes("res.cloudinary.com")
+  ) {
+    continue;
+  }
+
+  try {
+    const uploadPath =
+      image.split("/upload/")[1];
+
+    if (!uploadPath) {
+      continue;
+    }
+
+    const publicId =
+      uploadPath
+        .split("/")
+        .slice(1)
+        .join("/")
+        .replace(/\.[^/.]+$/, "");
+
+    await cloudinary.uploader.destroy(
+      publicId,
+      {
+        resource_type: "image"
+      }
+    );
+  } catch (error) {
+    console.error(
+      "Failed to delete removed Cloudinary image:",
+      error.message
+    );
+  }
+}
 
       if (
         finalImages.length === 0
@@ -1022,44 +1066,42 @@ if (!productId) {
         id: productId
       });
 
-      for (
-        const image of productImages
-      ) {
-        if (
-          typeof image !==
-            "string" ||
-          !image.includes(
-            "/uploads/products/"
-          )
-        ) {
-          continue;
-        }
+        for (const image of productImages) {
+  if (
+    typeof image !== "string" ||
+    !image.includes("res.cloudinary.com")
+  ) {
+    continue;
+  }
 
-        const filename =
-          path.basename(image);
+  try {
+    const uploadPath =
+      image.split("/upload/")[1];
 
-        const filePath =
-          path.join(
-            uploadDirectory,
-            filename
-          );
+    if (!uploadPath) {
+      continue;
+    }
 
-        try {
-          await fs.promises.unlink(
-            filePath
-          );
-        } catch (error) {
-          if (
-            error.code !==
-            "ENOENT"
-          ) {
-            console.error(
-              `Failed to delete product image ${filename}:`,
-              error.message
-            );
-          }
-        }
+    const publicIdWithExtension =
+      uploadPath
+        .split("/")
+        .slice(1)
+        .join("/")
+        .replace(/\.[^/.]+$/, "");
+
+    await cloudinary.uploader.destroy(
+      publicIdWithExtension,
+      {
+        resource_type: "image"
       }
+    );
+  } catch (error) {
+    console.error(
+      "Failed to delete Cloudinary image:",
+      error.message
+    );
+  }
+}
 
       return res.json({
         message:

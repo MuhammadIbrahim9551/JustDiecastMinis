@@ -7,25 +7,10 @@ const ReviewRequest = require("../models/ReviewRequest");
 
 const router = express.Router();
 const multer = require("multer");
-const path = require("path");
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads/reviews"));
-  },
-
-  filename: (req, file, cb) => {
-    const extension = path.extname(file.originalname);
-
-    const uniqueName = `${Date.now()}-${crypto
-      .randomBytes(8)
-      .toString("hex")}${extension}`;
-
-    cb(null, uniqueName);
-  }
-});
+const cloudinary = require("../cloudinary");
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
 
   limits: {
     files: 3,
@@ -73,7 +58,7 @@ router.get("/form/:orderId", async (req, res) => {
 
     const reviewRequest = await ReviewRequest.findOne({
       orderId,
-      productId: Number(productId),
+      productId: String(productId).trim(),
       tokenHash
     });
 
@@ -137,7 +122,7 @@ router.post("/", upload.array("photos", 3), async (req, res) => {
     }
 
     const numericRating = Number(rating);
-    const numericProductId = Number(productId);
+const productIdString = String(productId).trim();
 
     if (
       !Number.isInteger(numericRating) ||
@@ -164,7 +149,7 @@ router.post("/", upload.array("photos", 3), async (req, res) => {
 
     const reviewRequest = await ReviewRequest.findOne({
       orderId,
-      productId: numericProductId,
+      productId: productIdString,
       tokenHash
     });
 
@@ -186,9 +171,30 @@ router.post("/", upload.array("photos", 3), async (req, res) => {
       });
     }
 
-    const photoUrls = (req.files || []).map(
-  (file) => `/uploads/reviews/${file.filename}`
-);
+    const photoUrls = [];
+
+for (const file of req.files || []) {
+  const result =
+    await new Promise((resolve, reject) => {
+      const stream =
+        cloudinary.uploader.upload_stream(
+          {
+            folder: "just-diecast-minis/reviews"
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+      stream.end(file.buffer);
+    });
+
+  photoUrls.push(result.secure_url);
+}
 
     const review = await Review.create({
   productId: reviewRequest.productId,
@@ -255,18 +261,14 @@ router.get(
   "/product/:productId",
   async (req, res) => {
     try {
-      const productId = Number(
-        req.params.productId
-      );
+      const productId =
+  req.params.productId?.trim();
 
-      if (
-        !Number.isInteger(productId) ||
-        productId < 1
-      ) {
-        return res.status(400).json({
-          message: "Invalid product ID."
-        });
-      }
+if (!productId) {
+  return res.status(400).json({
+    message: "Invalid product ID."
+  });
+}
 
       const reviews = await Review.find({
         productId,
