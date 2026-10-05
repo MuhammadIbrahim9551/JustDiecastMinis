@@ -10,6 +10,7 @@ const {
 } = require("../middleware/auth");
 
 const router = express.Router();
+const deleteUploadedFiles = () => {};
 
 const allowedCategories = [
   "new-arrivals",
