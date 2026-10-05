@@ -184,7 +184,7 @@ async function processCartStockChanges() {
 
   for (const user of users) {
     const productIds = user.cart.map(
-      (item) => Number(item.id)
+      (item) => String(item.id)
     );
 
     if (productIds.length === 0) {
