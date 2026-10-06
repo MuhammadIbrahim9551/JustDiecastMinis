@@ -155,44 +155,179 @@ const [ordersControlSaving, setOrdersControlSaving] = useState(false);
     };
   }, []);
 
-  useEffect(() => {
+
+useEffect(() => {
+  const fetchCatalogOptions = async () => {
     try {
-      const savedOptions = localStorage.getItem("jdm_catalog_options");
-      if (savedOptions) {
-        setCatalogOptions((current) => ({ ...current, ...JSON.parse(savedOptions) }));
+      const token =
+        localStorage.getItem("jdm_token");
+
+      const response = await fetch(
+        `${API_URL}/store-settings`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+          "Failed to load catalog options."
+        );
+      }
+
+      if (data.catalogOptions) {
+        setCatalogOptions(
+          data.catalogOptions
+        );
       }
     } catch (error) {
-      console.error("Unable to load catalog options.", error);
+      console.error(
+        "Unable to load catalog options:",
+        error
+      );
     }
-  }, []);
+  };
 
-  const addCatalogOption = (optionKey, label) => {
-    const value = newCatalogValue[optionKey].trim();
-    if (!value) return;
+  fetchCatalogOptions();
+}, []);
 
-    setCatalogOptions((current) => {
-      if (current[optionKey].some((item) => item.toLowerCase() === value.toLowerCase())) {
-        return current;
+
+ 
+const addCatalogOption = async (
+  optionKey,
+  label
+) => {
+  const value =
+    newCatalogValue[optionKey].trim();
+
+  if (!value) return;
+
+  if (
+    catalogOptions[optionKey].some(
+      (item) =>
+        item.toLowerCase() ===
+        value.toLowerCase()
+    )
+  ) {
+    return;
+  }
+
+  const updated = {
+    ...catalogOptions,
+    [optionKey]: [
+      ...catalogOptions[optionKey],
+      value
+    ]
+  };
+
+  try {
+    const token =
+      localStorage.getItem("jdm_token");
+
+    const response = await fetch(
+      `${API_URL}/store-settings/catalog-options`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(updated)
       }
+    );
 
-      const updated = { ...current, [optionKey]: [...current[optionKey], value] };
-      localStorage.setItem("jdm_catalog_options", JSON.stringify(updated));
-      window.dispatchEvent(new Event("jdm-catalog-change"));
-      return updated;
-    });
+    const data = await response.json();
 
-    setNewCatalogValue((current) => ({ ...current, [optionKey]: "" }));
-    showNotification("success", `${label} added to the catalog options.`);
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+        "Failed to update catalog options."
+      );
+    }
+
+    setCatalogOptions(
+      data.catalogOptions
+    );
+
+    setNewCatalogValue(
+      (current) => ({
+        ...current,
+        [optionKey]: ""
+      })
+    );
+
+    showNotification(
+      "success",
+      `${label} added to the catalog options.`
+    );
+  } catch (error) {
+    showNotification(
+      "error",
+      error.message ||
+      "Unable to update catalog options."
+    );
+  }
+};
+
+const removeCatalogOption = async (
+  optionKey,
+  value
+) => {
+  const updated = {
+    ...catalogOptions,
+    [optionKey]:
+      catalogOptions[optionKey].filter(
+        (item) => item !== value
+      )
   };
 
-  const removeCatalogOption = (optionKey, value) => {
-    setCatalogOptions((current) => {
-      const updated = { ...current, [optionKey]: current[optionKey].filter((item) => item !== value) };
-      localStorage.setItem("jdm_catalog_options", JSON.stringify(updated));
-      window.dispatchEvent(new Event("jdm-catalog-change"));
-      return updated;
-    });
-  };
+  try {
+    const token =
+      localStorage.getItem("jdm_token");
+
+    const response = await fetch(
+      `${API_URL}/store-settings/catalog-options`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(updated)
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+        "Failed to update catalog options."
+      );
+    }
+
+    setCatalogOptions(
+      data.catalogOptions
+    );
+
+    showNotification(
+      "success",
+      `${value} removed from the catalog options.`
+    );
+  } catch (error) {
+    showNotification(
+      "error",
+      error.message ||
+      "Unable to update catalog options."
+    );
+  }
+};
+
 
   const resetProductForm = () => {
     setNewProduct({

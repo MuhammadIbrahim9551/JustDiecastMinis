@@ -808,22 +808,30 @@ We hope to see you again soon!
 /*
  * Get store settings.
  */
+
 router.get(
   "/store-settings",
   authenticate,
   requireAdmin,
   async (req, res) => {
     try {
-      let storeSettings = await StoreSettings.findOne();
+      let storeSettings =
+        await StoreSettings.findOne();
 
       if (!storeSettings) {
-        storeSettings = await StoreSettings.create({
-          ordersEnabled: true
-        });
+        storeSettings =
+          await StoreSettings.create({});
       }
 
       return res.json({
-        ordersEnabled: storeSettings.ordersEnabled
+        ordersEnabled:
+          storeSettings.ordersEnabled,
+
+        youtubeShowcaseUrl:
+          storeSettings.youtubeShowcaseUrl || "",
+
+        catalogOptions:
+          storeSettings.catalogOptions
       });
     } catch (error) {
       console.error(
@@ -832,11 +840,77 @@ router.get(
       );
 
       return res.status(500).json({
-        message: "Failed to fetch store settings."
+        message:
+          "Failed to fetch store settings."
       });
     }
   }
 );
+
+router.put(
+  "/store-settings/catalog-options",
+  authenticate,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const {
+        modelMakers,
+        scales,
+        vehicleMakers,
+        types
+      } = req.body;
+
+      if (
+        !Array.isArray(modelMakers) ||
+        !Array.isArray(scales) ||
+        !Array.isArray(vehicleMakers) ||
+        !Array.isArray(types)
+      ) {
+        return res.status(400).json({
+          message:
+            "All catalog options must be arrays."
+        });
+      }
+
+      let storeSettings =
+        await StoreSettings.findOne();
+
+      if (!storeSettings) {
+        storeSettings =
+          new StoreSettings();
+      }
+
+      storeSettings.catalogOptions = {
+        modelMakers,
+        scales,
+        vehicleMakers,
+        types
+      };
+
+      await storeSettings.save();
+
+      return res.json({
+        message:
+          "Catalog options updated successfully.",
+
+        catalogOptions:
+          storeSettings.catalogOptions
+      });
+    } catch (error) {
+      console.error(
+        "Failed to update catalog options:",
+        error.message
+      );
+
+      return res.status(500).json({
+        message:
+          "Failed to update catalog options."
+      });
+    }
+  }
+);
+
+
 
 
 /*

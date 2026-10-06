@@ -38,8 +38,8 @@ function Shop({
       "1:18"
     ],
 
-    // Model makers are loaded from Admin/localStorage.
-    // These are only the fallback defaults.
+    // Catalog options are loaded from the backend.
+    // These are only fallback defaults.
     modelMakers: [
       "Hot Wheels",
       "Tomica",
@@ -182,55 +182,34 @@ function Shop({
     previousShopPage.current = currentPage;
   }, [currentPage]);
 
-  // Load catalog options from Admin/localStorage.
+  // Load catalog options from the backend.
   useEffect(() => {
-    const loadCatalogOptions = () => {
+    const fetchCatalogOptions = async () => {
       try {
-        const savedOptions =
-          localStorage.getItem(
-            "jdm_catalog_options"
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/store-settings/catalog-options`
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch catalog options."
           );
+        }
 
-        if (savedOptions) {
-          const parsedOptions =
-            JSON.parse(savedOptions);
+        const data = await response.json();
 
-          setCatalogOptions((current) => ({
-            ...current,
-            ...parsedOptions
-          }));
+        if (data.catalogOptions) {
+          setCatalogOptions(data.catalogOptions);
         }
       } catch (error) {
         console.error(
-          "Unable to load catalog options.",
+          "Unable to load catalog options:",
           error
         );
       }
     };
 
-    loadCatalogOptions();
-
-    window.addEventListener(
-      "jdm-catalog-change",
-      loadCatalogOptions
-    );
-
-    window.addEventListener(
-      "storage",
-      loadCatalogOptions
-    );
-
-    return () => {
-      window.removeEventListener(
-        "jdm-catalog-change",
-        loadCatalogOptions
-      );
-
-      window.removeEventListener(
-        "storage",
-        loadCatalogOptions
-      );
-    };
+    fetchCatalogOptions();
   }, []);
 
   // Load products.
@@ -622,24 +601,24 @@ function Shop({
       });
 
     // SORTING
-if (sort === "price-low") {
-  return [...filtered].sort(
-    (a, b) => a.price - b.price
-  );
-}
+    if (sort === "price-low") {
+      return [...filtered].sort(
+        (a, b) => a.price - b.price
+      );
+    }
 
-if (sort === "price-high") {
-  return [...filtered].sort(
-    (a, b) => b.price - a.price
-  );
-}
+    if (sort === "price-high") {
+      return [...filtered].sort(
+        (a, b) => b.price - a.price
+      );
+    }
 
-// Default: newest products first
-return [...filtered].sort(
-  (a, b) =>
-    new Date(b.createdAt || 0) -
-    new Date(a.createdAt || 0)
-);
+    // Default: newest products first
+    return [...filtered].sort(
+      (a, b) =>
+        new Date(b.createdAt || 0) -
+        new Date(a.createdAt || 0)
+    );
   }, [
     products,
     search,
