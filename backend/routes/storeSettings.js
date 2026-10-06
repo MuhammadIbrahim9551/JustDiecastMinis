@@ -28,6 +28,33 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET catalog options
+router.get("/catalog-options", async (req, res) => {
+  try {
+    let settings = await StoreSettings.findOne();
+
+    if (!settings) {
+      settings = await StoreSettings.create({
+        ordersEnabled: true,
+        youtubeShowcaseUrl: ""
+      });
+    }
+
+    res.json({
+      catalogOptions: settings.catalogOptions
+    });
+  } catch (error) {
+    console.error(
+      "Fetch catalog options error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Failed to fetch catalog options."
+    });
+  }
+});
+
 // PUT order availability
 router.put("/orders", async (req, res) => {
   try {
