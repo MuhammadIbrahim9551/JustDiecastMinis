@@ -16,7 +16,7 @@ const storeSettingsSchema = new mongoose.Schema(
       modelMakers: {
         type: [String],
         default: [
-          "Hot Wheels",
+          "HotWheels",
           "Tomica",
           "Mini GT",
           "Kyosho",
