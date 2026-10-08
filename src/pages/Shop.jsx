@@ -41,7 +41,7 @@ function Shop({
     // Catalog options are loaded from the backend.
     // These are only fallback defaults.
     modelMakers: [
-      "Hot Wheels",
+      "HotWheels",
       "Tomica",
       "Mini GT",
       "Kyosho",
