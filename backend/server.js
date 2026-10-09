@@ -1,6 +1,7 @@
 const express = require("express");
 
 const net = require("net");
+const Product = require("./models/Product");
 
 
 const cors = require("cors");
@@ -156,6 +157,57 @@ app.get(
 const PORT =
   process.env.PORT || 5000;
 
+
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const products = await Product.find(
+      {},
+      "id updatedAt"
+    ).lean();
+
+    const baseUrl = "https://justdiecastminis.com";
+
+    const escapeXml = (value) =>
+      String(value).replace(/[<>&'"]/g, (char) => ({
+        "<": "&lt;",
+        ">": "&gt;",
+        "&": "&amp;",
+        "'": "&apos;",
+        '"': "&quot;",
+      })[char]);
+
+    const urls = [
+      {
+        loc: `${baseUrl}/`,
+        lastmod: null,
+      },
+      ...products.map((product) => ({
+        loc: `${baseUrl}/product/${encodeURIComponent(product.id)}`,
+        lastmod: product.updatedAt
+          ? new Date(product.updatedAt).toISOString()
+          : null,
+      })),
+    ];
+
+    const entries = urls.map(({ loc, lastmod }) => `
+  <url>
+    <loc>${escapeXml(loc)}</loc>${lastmod ? `
+    <lastmod>${lastmod}</lastmod>` : ""}
+  </url>`).join("");
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries}
+</urlset>`;
+
+    res.status(200).type("application/xml").send(xml);
+  } catch (error) {
+    console.error("Sitemap generation failed:", error);
+    res.status(500).type("text/plain").send(
+      "Unable to generate sitemap."
+    );
+  }
+});
+
 mongoose
   .connect(
     process.env.MONGODB_URI
@@ -172,6 +224,8 @@ mongoose
 );
 
     startStockNotificationScheduler();
+
+    
 
     app.listen(
       PORT,
